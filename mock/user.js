@@ -8,6 +8,11 @@ const tokens = {
   }
 }
 
+const nameandpass = {
+  username: 'admin',
+  password: '111111'
+}
+
 const users = {
   'admin-token': {
     roles: ['admin'],
@@ -29,20 +34,37 @@ module.exports = [
     url: '/vue-admin-template/user/login',
     type: 'post',
     response: config => {
+      console.log(config)
       const { username } = config.body
-      const token = tokens[username]
+      const { password } = config.body
+      // const token = tokens[username]
 
       // mock error
-      if (!token) {
+      // if (!token) {
+      //   return {
+      //     code: 60204,
+      //     message: 'Account and password are incorrect.'
+      //   }
+      // }
+      if (username === nameandpass.username && password === nameandpass.password) {
         return {
-          code: 60204,
-          message: 'Account and password are incorrect.'
+          code: 20000,
+          data: {
+            'success': true,
+            'token': tokens[username].token,
+            'message': '成功',
+            'type': 'admin'
+          }
         }
-      }
-
-      return {
-        code: 20000,
-        data: token
+      } else {
+        return {
+          data: {
+            'success': false,
+            'token': '',
+            'message': '错误',
+            'type': ''
+          }
+        }
       }
     }
   },
