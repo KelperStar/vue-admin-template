@@ -41,7 +41,11 @@
         </span>
       </el-form-item>
 
+      <el-container>
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
+
+      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleRegister">注册</el-button>
+      </el-container>
 
       <div class="tips">
         <span style="margin-right:20px;">username: admin</span>
@@ -54,6 +58,7 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
+import { Message } from 'element-ui'
 
 export default {
   name: 'Login',
@@ -66,7 +71,7 @@ export default {
       }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
+      if (value.length < 4) {
         callback(new Error('The password can not be less than 6 digits'))
       } else {
         callback()
@@ -109,8 +114,35 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
+          this.$store.dispatch('user/login', this.loginForm).then(response => {
+            const { message } = response
+            Message({
+              message: message,
+              type: 'success',
+              duration: 5 * 1000
+            })
+            this.$router.push({ path: '/' })
+            this.loading = false
+          }).catch(() => {
+            this.loading = false
+          })
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    },
+    handleRegister() {
+      this.$refs.loginForm.validate(valid => {
+        if (valid) {
+          this.loading = true
+          this.$store.dispatch('user/register', this.loginForm).then(response => {
+            const { message } = response
+            Message({
+              message: message,
+              type: 'success',
+              duration: 5 * 1000
+            })
             this.loading = false
           }).catch(() => {
             this.loading = false
@@ -169,6 +201,7 @@ $cursor: #fff;
     border-radius: 5px;
     color: #454545;
   }
+
 }
 </style>
 
@@ -210,6 +243,10 @@ $light_gray:#eee;
     vertical-align: middle;
     width: 30px;
     display: inline-block;
+  }
+
+  .button-container {
+    vertical-align: top;
   }
 
   .title-container {

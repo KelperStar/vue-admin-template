@@ -1,10 +1,11 @@
-import router from './router'
+import router, { resetRouter } from './router'
 import store from './store'
 import { Message } from 'element-ui'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
-import { getToken } from '@/utils/auth' // get token from cookie
+import { getToken, getName, getRole, getAvatar } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
+import * as path from 'path'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -19,6 +20,7 @@ router.beforeEach(async(to, from, next) => {
 
   // determine whether the user has logged in
   const hasToken = getToken()
+  const type = getRole()
 
   if (hasToken) {
     if (to.path === '/login') {
@@ -27,18 +29,37 @@ router.beforeEach(async(to, from, next) => {
       NProgress.done()
     } else {
       const hasGetUserInfo = store.getters.name
-      if (hasGetUserInfo) {
-        next()
+      // console.log(store.getters.name)
+      // const hasRoles = store.getters.roles && store.getters.roles.length > 0
+      if (hasGetUserInfo) { // hasGetUserInfo
+        console.log('1')
+        console.log(type)
+        await store.dispatch('permission/GenerateRoutes', { type }).then((routes) => {
+          resetRouter()
+          router.addRoutes(routes)
+          console.log(routes)
+        })
+        if (to.matched.length === 0) next({ path: to.path })
+        else next()
+        // next()
       } else {
         try {
-          // get user info
-          await store.dispatch('user/getInfo')
-
+          // get roles
+          // const {roles} = await store.dispatch('user/getInfo')
+          // next(`/login?redirect=${to.path}`)
+          // NProgress.done()
+          // await store.dispatch('user/resetToken')
+          // Message.error('请重新登录')
+          // next('/login')
+          // NProgress.done()
+          await store.dispatch('permission/GenerateRoutes', { type }).then((routes) => {
+            router.addRoutes(routes)
+          })
           next()
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
+          Message.error('Has Error')
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }

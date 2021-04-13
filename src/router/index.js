@@ -38,12 +38,6 @@ export const constantRoutes = [
   },
 
   {
-    path: '/404',
-    component: () => import('@/views/404'),
-    hidden: true
-  },
-
-  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -147,20 +141,76 @@ export const constantRoutes = [
         meta: { title: 'menu2' }
       }
     ]
-  },
+  }
+  // 404 page must be placed at the end !!!
+  // { path: '*', redirect: '/404', hidden: true }
+]
 
+// 异步挂载的路由
+// 动态需要根据权限加载的路由表
+
+export const asyncRoutes = [
   {
     path: 'external-link',
     component: Layout,
+    meta: { role: 'admin' },
     children: [
       {
         path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
-        meta: { title: 'External Link', icon: 'link' }
+        meta: { title: 'External Link', icon: 'link', role: 'admin' }
       }
     ]
   },
-
-  // 404 page must be placed at the end !!!
+  {
+    path: '/usermanagement',
+    component: Layout,
+    name: 'Usermanagement',
+    meta: { title: '用户管理', role: 'admin', icon: 'user' },
+    children: [{
+      path: 'userlist',
+      name: 'Userlist',
+      component: () => import('@/views/usermanagement/userlist'),
+      meta: { title: '用户列表', icon: 'form' }
+    },
+    {
+      path: 'adduser',
+      name: 'Adduser',
+      component: () => import('@/views/usermanagement/adduser'),
+      meta: { title: '新增用户', icon: 'form' }
+    },
+    {
+      path: 'uncertifieduser',
+      name: 'Uncertifieduser',
+      component: () => import('@/views/usermanagement/uncertifieduser'),
+      meta: { title: '待审批列表', icon: 'form' }
+    }
+    ]
+  },
+  {
+    path: '/datamanagement',
+    component: Layout,
+    name: 'Datamanagement',
+    meta: { title: '数据管理', icon: 'user' },
+    children: [{
+      path: 'dataauthority',
+      name: 'Dataauthority',
+      component: () => import('@/views/datamanagement/dataauthority'),
+      meta: { title: '权限管理', role: 'admin', icon: 'form' }
+    },
+    {
+      path: 'certify',
+      name: 'Certify',
+      component: () => import('@/views/datamanagement/certify'),
+      meta: { title: '权限验证', icon: 'form' }
+    },
+    {
+      path: 'dataimport',
+      name: 'Dataimport',
+      component: () => import('@/views/datamanagement/dataimport'),
+      meta: { title: '数据导入', icon: 'form' }
+    }
+    ]
+  },
   { path: '*', redirect: '/404', hidden: true }
 ]
 
